@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,15 +18,16 @@ public class CustomerEF
     public string FirstName { get; set; }
     public string Street { get; set; }
     public int Nr { get; set; }
-    public string NrAddition { get; set; }
+    public string? NrAddition { get; set; }
     public string City { get; set; }
     public int PostalCode { get; set; }
     public string Country { get; set; }
     public string Phone { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
-    public ICollection<OrderEF> Orders { get; set; } = new List<OrderEF>();
     [Required]
     [Column(TypeName = "bit")]
     public bool Deleted { get; set; }
+    //
+    public ICollection<OrderEF> Orders { get; set; } = new List<OrderEF>();
 }

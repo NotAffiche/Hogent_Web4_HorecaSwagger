@@ -16,11 +16,11 @@ public class OrderEF
     [Required]
     public DateTime CreateDate { get; set; }
     public DateTime? PaymentDate { get; set; }
-    public int CustomerID { get; set; }
-    [Required]
-    public CustomerEF Customer { get; set; }
-    public ICollection<DishEF> Dishes { get; set; } = new List<DishEF>();
     [Required]
     [Column(TypeName = "bit")]
     public bool Deleted { get; set; }
+    //
+    public int CustomerUUID { get; set; }
+    public CustomerEF Customer { get; set; }
+    public ICollection<DishEF> Dishes { get; set; } = new List<DishEF>();
 }

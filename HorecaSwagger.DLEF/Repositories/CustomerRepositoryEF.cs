@@ -1,6 +1,7 @@
 ﻿using HorecaSwagger.BL.Interfaces;
 using HorecaSwagger.BL.Model;
 using HorecaSwagger.DLEF.Mappers;
+using HorecaSwagger.DLEF.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,16 @@ public class CustomerRepositoryEF : ICustomerRepository
 
     public void CreateCustomer(Customer customer)
     {
-        ctx.Customers.Add(CustomerMapper.MapToDB(customer, false));
+        if (ctx.Customers.Any(x=>x.Name==customer.Name&&x.FirstName==customer.FirstName&&x.Email==customer.Email))
+        {
+            var existingC = ctx.Customers.Where(x => x.Name == customer.Name&& x.FirstName == customer.FirstName&& x.Email == customer.Email).AsNoTracking().SingleOrDefault();
+            existingC.Deleted = false;
+            ctx.Customers.Update(existingC);
+        } 
+        else
+        { 
+            ctx.Customers.Add(CustomerMapper.MapToDB(customer, false)); 
+        }
         SaveAndClear();
     }
 
@@ -36,15 +46,15 @@ public class CustomerRepositoryEF : ICustomerRepository
         ctx.Customers.Update(CustomerMapper.MapToDB(customer, true)); 
         SaveAndClear();
     }
-
+    
     public Customer Read(int id)
     {
-        return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id).AsNoTracking().SingleOrDefault());
+        return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id && x.Deleted==false).AsNoTracking().SingleOrDefault());
     }
 
     public ICollection<Customer> ReadAll()
     {
-        return ctx.Customers.Select(x=> CustomerMapper.MapToDomain(x)).ToList();
+        return ctx.Customers.Where(x => x.Deleted == false).AsNoTracking().ToList().Select(x=> CustomerMapper.MapToDomain(x)).ToList();
     }
 
     public void UpdateCustomer(Customer customer)

@@ -23,5 +23,6 @@ public class DishEF
     [Required]
     [Column(TypeName = "bit")]
     public bool Deleted { get; set; }
+    //
     public ICollection<OrderEF> Orders { get; set; } = new List<OrderEF>();
 }

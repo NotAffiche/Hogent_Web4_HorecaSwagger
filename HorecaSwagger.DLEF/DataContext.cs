@@ -21,6 +21,7 @@ public class DataContext : DbContext
     public DbSet<CustomerEF> Customers { get; set; }
     public DbSet<DishEF> Dishes { get; set; }
     public DbSet<OrderEF> Orders { get; set; }
+    public DbSet<OrderDetailsEF> OrderDetails { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -33,29 +34,21 @@ public class DataContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<OrderEF>()
-            .HasOne(o => o.Customer)
-            .WithMany(c => c.Orders)
+        modelBuilder.Entity<CustomerEF>()
+            .HasIndex(c => c.Email).IsUnique();
+        modelBuilder.Entity<CustomerEF>()
+            .HasMany(c => c.Orders)
+            .WithOne(o => o.Customer)
+            .HasForeignKey(o => o.CustomerUUID)
+            .HasPrincipalKey(c => c.CustomerUUID)
             .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<DishEF>()
-        .HasMany(d => d.Orders)
-        .WithMany(o => o.Dishes)
-        .UsingEntity<OrderDetailsEF>(
-            "OrderDetails",
-            j => j
-                .HasOne<OrderEF>()
-                .WithMany()
-                .HasForeignKey("OrderUUID")
-                .OnDelete(DeleteBehavior.Restrict),
-            j => j
-                .HasOne<DishEF>()
-                .WithMany()
-                .HasForeignKey("DishUUID")
-                .OnDelete(DeleteBehavior.Restrict),
-            j =>
-            {
-                j.HasKey(od => od.UUID);
-                j.ToTable("OrderDetails");
-            });
+        modelBuilder.Entity<OrderEF>()
+            .HasMany(o => o.Dishes)
+            .WithMany(d => d.Orders)
+            .UsingEntity<OrderDetailsEF>
+            (
+            l => l.HasOne<DishEF>().WithMany().HasForeignKey(od => od.DishUUID),
+            r => r.HasOne<OrderEF>().WithMany().HasForeignKey(od => od.OrderUUID)
+            );
     }
 }

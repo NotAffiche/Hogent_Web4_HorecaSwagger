@@ -11,4 +11,7 @@ public class OrderDetailsEF
 {
     [Key]
     public int UUID { get; set; }
+    public int OrderUUID { get; set; }
+    public int DishUUID { get; set; }
+    public int DishAmount { get; set; }
 }

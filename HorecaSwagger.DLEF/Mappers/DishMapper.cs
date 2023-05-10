@@ -22,7 +22,7 @@ public static class DishMapper
         }
     }
 
-    public static DishEF MapToDB(Dish dom)
+    public static DishEF MapToDB(Dish dom, bool deleted)
     {
         try
         {
@@ -32,7 +32,8 @@ public static class DishMapper
                 Name = dom.Name,
                 Description = dom.Description,
                 PriceInEUR= dom.PriceInEUR,
-                AmountAvailable= dom.AmountAvailable
+                AmountAvailable= dom.AmountAvailable,
+                Deleted = deleted
             };
         }
         catch (Exception ex)

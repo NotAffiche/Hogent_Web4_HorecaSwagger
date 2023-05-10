@@ -14,7 +14,8 @@ public static class OrderMapper
     {
         try
         {
-            return new Order(db.OrderUUID, db.CreateDate, db.PaymentDate, CustomerMapper.MapToDomain(db.Customer), db.Dishes.Select(x=>DishMapper.MapToDomain(x)).ToList());
+            Order dom = new Order(db.OrderUUID, db.CreateDate, db.PaymentDate, CustomerMapper.MapToDomain(db.Customer), db.Dishes.Select(x => DishMapper.MapToDomain(x)).ToList());
+            return dom;
         }
         catch (Exception ex)
         {
@@ -22,7 +23,7 @@ public static class OrderMapper
         }
     }
 
-    public static OrderEF MapToDB(Order dom)
+    public static OrderEF MapToDB(Order dom, bool deleted)
     {
         try
         {
@@ -32,8 +33,9 @@ public static class OrderMapper
                 CreateDate = dom.CreateDate,
                 PaymentDate = dom.PaymentDate,
                 Customer = CustomerMapper.MapToDB(dom.Customer, false),
-                CustomerID = dom.Customer.CustomerUUID,
-                Dishes = dom.Dishes.Select(x=> DishMapper.MapToDB(x)).ToList()
+                CustomerUUID = dom.Customer.CustomerUUID,
+                Dishes = dom.Dishes.Select(x=> DishMapper.MapToDB(x, false)).ToList(),
+                Deleted= deleted
             };
         }
         catch (Exception ex)
