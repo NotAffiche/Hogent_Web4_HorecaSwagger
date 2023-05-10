@@ -36,48 +36,80 @@ public class OrderRepositoryEF : IOrderRepository
             Deleted = false,
             Customer = ctx.Customers.Find(order.Customer.CustomerUUID),
         };
-        foreach (var item in order.Dishes)
-        {
-            oEF.Dishes.Add(ctx.Dishes.Find(item.DishUUID));
-        }
         ctx.Orders.Add(oEF);
+        SaveAndClear();
+        foreach (var dict in order.DishesWithAmount)
+        {
+            foreach (var item in dict)
+            {
+                oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
+                ctx.OrderDetails.Add(new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID/*ctx.Dishes.Find(item.Key.DishUUID).DishUUID*/, DishAmount = item.Value });
+            }
+        }
         SaveAndClear();
     }
 
     public void DeleteOrder(Order order)
     {
-        ctx.Orders.Update(OrderMapper.MapToDB(order, true));
+        var oEF = ctx.Orders.Find(order.OrderUUID);
+        oEF.Deleted = true;
+        ctx.Orders.Update(oEF);
         SaveAndClear();
     }
 
     public Order Read(int id)
     {
-        return OrderMapper.MapToDomain(ctx.Orders.Where(x => x.OrderUUID == id && x.Deleted == false).AsNoTracking().SingleOrDefault());
+        OrderEF oEF = ctx.Orders.Where(x => x.Deleted == false&&x.OrderUUID==id).AsNoTracking().SingleOrDefault();
+        Order order = null;
+        List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
+        foreach (var od in ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).AsNoTracking().ToList())
+        {
+            dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().SingleOrDefault()), od.DishAmount } });
+        }
+        var customerEF = ctx.Customers.Where(x => x.CustomerUUID == oEF.CustomerUUID).AsNoTracking().SingleOrDefault();
+        order =new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount);
+        return order;
     }
 
     public ICollection<Order> ReadAll()
     {
         List<OrderEF> ordersEFs = ctx.Orders.Where(x => x.Deleted == false).AsNoTracking().ToList();
-        foreach (var item in ordersEFs)
+        List<Order> orders = new List<Order>();
+        foreach (var oEF in ordersEFs)
         {
-            List<DishEF> dishesEFs = new List<DishEF>();
-            item.Customer = ctx.Customers.Where(x => x.CustomerUUID == item.CustomerUUID).AsNoTracking().SingleOrDefault();
-            List<OrderDetailsEF> odEFs = ctx.OrderDetails.Where(x=>x.OrderUUID==item.OrderUUID).ToList();
-            foreach (var od in odEFs)
+            List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
+            foreach (var od in ctx.OrderDetails.Where(x=>x.OrderUUID==oEF.OrderUUID).AsNoTracking().ToList())
             {
-                for (int i = 0; i < od.DishAmount; i++)
-                {
-                    item.Dishes.Add(ctx.Dishes.Find(od.DishUUID));
-                }
+                dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().SingleOrDefault()), od.DishAmount } });
             }
+            var customerEF = ctx.Customers.Where(x=>x.CustomerUUID==oEF.CustomerUUID).AsNoTracking().SingleOrDefault(); 
+            orders.Add(new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount));
         }
-        Console.WriteLine(ordersEFs);
-        return ordersEFs.Select(x => OrderMapper.MapToDomain(x)).ToList();
+        return orders;
     }
 
     public void UpdateOrder(Order order)
     {
-        ctx.Orders.Update(OrderMapper.MapToDB(order, false));
+        var oEF = ctx.Orders.Find(order.OrderUUID);
+
+        oEF.OrderUUID = order.OrderUUID;
+        oEF.CreateDate = order.CreateDate;
+        oEF.PaymentDate = order.PaymentDate;
+        oEF.Deleted = false;
+        oEF.Customer = ctx.Customers.Find(order.Customer.CustomerUUID);
+
+        foreach (var dict in order.DishesWithAmount)
+        {
+            foreach (var item in dict)
+            {
+                oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
+                OrderDetailsEF odEF = ctx.OrderDetails.Where(x=>x.OrderUUID==oEF.OrderUUID&&x.DishUUID==item.Key.DishUUID).AsNoTracking().SingleOrDefault();
+                odEF.DishAmount = item.Value;
+                ctx.OrderDetails.Update(odEF);
+            }
+        }
+
+        ctx.Orders.Update(oEF);
         SaveAndClear();
     }
 }

@@ -47,8 +47,8 @@ public class DataContext : DbContext
             .WithMany(d => d.Orders)
             .UsingEntity<OrderDetailsEF>
             (
-            l => l.HasOne<DishEF>().WithMany().HasForeignKey(od => od.DishUUID),
-            r => r.HasOne<OrderEF>().WithMany().HasForeignKey(od => od.OrderUUID)
+            l => l.HasOne<DishEF>().WithMany().HasForeignKey(od => od.DishUUID).OnDelete(DeleteBehavior.Restrict),
+            r => r.HasOne<OrderEF>().WithMany().HasForeignKey(od => od.OrderUUID).OnDelete(DeleteBehavior.Restrict)
             );
     }
 }
