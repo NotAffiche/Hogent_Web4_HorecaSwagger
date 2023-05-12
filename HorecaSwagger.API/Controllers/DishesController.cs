@@ -48,6 +48,7 @@ public class DishesController : Controller
         }
     }
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPost]
     public ActionResult Post([FromBody] DishDTO dto)
     {
@@ -62,6 +63,7 @@ public class DishesController : Controller
         }
     }
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPut]
     public ActionResult Put([FromBody] DishDTO dto)
     {
@@ -76,6 +78,7 @@ public class DishesController : Controller
         }
     }
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpDelete("{id}")]
     public ActionResult Delete(int id)
     {
