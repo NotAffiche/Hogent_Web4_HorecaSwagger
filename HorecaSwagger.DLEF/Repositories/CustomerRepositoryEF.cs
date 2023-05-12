@@ -1,5 +1,6 @@
 ﻿using HorecaSwagger.BL.Interfaces;
 using HorecaSwagger.BL.Model;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Mappers;
 using HorecaSwagger.DLEF.Model;
 using Microsoft.EntityFrameworkCore;
@@ -28,38 +29,74 @@ public class CustomerRepositoryEF : ICustomerRepository
 
     public void CreateCustomer(Customer customer)
     {
-        if (ctx.Customers.Any(x=>x.Name==customer.Name&&x.FirstName==customer.FirstName&&x.Email==customer.Email))
+        try
         {
-            var existingC = ctx.Customers.Where(x => x.Name == customer.Name&& x.FirstName == customer.FirstName&& x.Email == customer.Email).AsNoTracking().SingleOrDefault();
-            existingC.Deleted = false;
-            ctx.Customers.Update(existingC);
-        } 
-        else
-        { 
-            ctx.Customers.Add(CustomerMapper.MapToDB(customer, false)); 
+            if (ctx.Customers.Any(x => x.Name == customer.Name && x.FirstName == customer.FirstName && x.Email == customer.Email))
+            {
+                var existingC = ctx.Customers.Where(x => x.Name == customer.Name && x.FirstName == customer.FirstName && x.Email == customer.Email).AsNoTracking().SingleOrDefault();
+                existingC.Deleted = false;
+                ctx.Customers.Update(existingC);
+            }
+            else
+            {
+                ctx.Customers.Add(CustomerMapper.MapToDB(customer, false));
+            }
+            SaveAndClear();
         }
-        SaveAndClear();
+        catch (Exception ex)
+        {
+            throw new DataException("Create Customer", ex);
+        }
     }
 
     public void DeleteCustomer(Customer customer)
     {
-        ctx.Customers.Update(CustomerMapper.MapToDB(customer, true)); 
-        SaveAndClear();
+        try
+        {
+            ctx.Customers.Update(CustomerMapper.MapToDB(customer, true));
+            SaveAndClear();
+        }
+        catch(Exception ex)
+        {
+            throw new DataException("Delete Customer", ex);
+        }
     }
     
     public Customer Read(int id)
     {
-        return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id && x.Deleted==false).AsNoTracking().SingleOrDefault());
+        try
+        {
+            return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id && x.Deleted == false).AsNoTracking().SingleOrDefault());
+        }
+        catch(Exception ex)
+        {
+            throw new DataException($"Read Customer {id}", ex);
+        }
     }
 
     public ICollection<Customer> ReadAll()
     {
-        return ctx.Customers.Where(x => x.Deleted == false).AsNoTracking().ToList().Select(x=> CustomerMapper.MapToDomain(x)).ToList();
+        try
+        {
+            return ctx.Customers.Where(x => x.Deleted == false).AsNoTracking().ToList().Select(x => CustomerMapper.MapToDomain(x)).ToList();
+        }
+        catch(Exception ex)
+        {
+            throw new DataException("Read Customer", ex);
+
+        }
     }
 
     public void UpdateCustomer(Customer customer)
     {
-        ctx.Customers.Update(CustomerMapper.MapToDB(customer, false));
-        SaveAndClear();
+        try
+        {
+            ctx.Customers.Update(CustomerMapper.MapToDB(customer, false));
+            SaveAndClear();
+        }
+        catch (Exception ex)
+        {
+            throw new DataException("Update Customer", ex);
+        }
     }
 }

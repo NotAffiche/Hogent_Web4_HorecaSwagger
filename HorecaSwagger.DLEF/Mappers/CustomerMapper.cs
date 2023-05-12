@@ -1,4 +1,5 @@
 ﻿using HorecaSwagger.BL.Model;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Model;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ public static class CustomerMapper
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new MapperException("Customer To Domain", ex);
         }
     }
 
@@ -45,7 +46,7 @@ public static class CustomerMapper
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw new MapperException("Customer To DB", ex);
         }
     }
 }
