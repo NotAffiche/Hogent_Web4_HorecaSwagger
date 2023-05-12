@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorecaSwagger.BL", "HorecaSwagger.BL\HorecaSwagger.BL.csproj", "{20638930-F7D7-49CD-9F65-3BB114CC4BB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorecaSwagger.BL", "HorecaSwagger.BL\HorecaSwagger.BL.csproj", "{20638930-F7D7-49CD-9F65-3BB114CC4BB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorecaSwagger.API", "HorecaSwagger.API\HorecaSwagger.API.csproj", "{75487F2C-CBF4-4715-822C-FDDFEEEE8D13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorecaSwagger.API", "HorecaSwagger.API\HorecaSwagger.API.csproj", "{75487F2C-CBF4-4715-822C-FDDFEEEE8D13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorecaSwagger.DLEF", "HorecaSwagger.DLEF\HorecaSwagger.DLEF.csproj", "{DA30003D-F5E1-494F-BC6F-386542190D21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorecaSwagger.DLEF", "HorecaSwagger.DLEF\HorecaSwagger.DLEF.csproj", "{DA30003D-F5E1-494F-BC6F-386542190D21}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleTestApps", "ConsoleTestApps", "{79ACB8F6-95B7-4E5A-BEDF-98E90023ACEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorecaSwagger.AdminUI", "HorecaSwagger.AdminUI\HorecaSwagger.AdminUI.csproj", "{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
