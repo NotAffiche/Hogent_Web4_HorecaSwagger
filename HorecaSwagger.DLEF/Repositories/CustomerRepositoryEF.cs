@@ -33,32 +33,35 @@ public class CustomerRepositoryEF : ICustomerRepository
         {
             if (ctx.Customers.Any(x => x.Name == customer.Name && x.FirstName == customer.FirstName && x.Email == customer.Email))
             {
-                var existingC = ctx.Customers.Where(x => x.Name == customer.Name && x.FirstName == customer.FirstName && x.Email == customer.Email).AsNoTracking().SingleOrDefault();
-                existingC.Deleted = false;
+                //re add deleted cust
+                var existingC = ctx.Customers.Where(x => x.Name == customer.Name && x.FirstName == customer.FirstName && x.Email == customer.Email).AsNoTracking().Single();
+                existingC!.Deleted = false;
                 ctx.Customers.Update(existingC);
             }
             else
             {
+                //add new cust
                 ctx.Customers.Add(CustomerMapper.MapToDB(customer, false));
             }
             SaveAndClear();
         }
         catch (Exception ex)
         {
-            throw new DataException("Create Customer", ex);
+            throw new RepositoryException("Create Customer", ex);
         }
     }
 
-    public void DeleteCustomer(Customer customer)
+    public void DeleteCustomer(int id)
     {
         try
         {
-            ctx.Customers.Update(CustomerMapper.MapToDB(customer, true));
+            
+            ctx.Customers.Update(CustomerMapper.MapToDB(Read(id), true));
             SaveAndClear();
         }
         catch(Exception ex)
         {
-            throw new DataException("Delete Customer", ex);
+            throw new RepositoryException("Delete Customer", ex);
         }
     }
     
@@ -66,11 +69,11 @@ public class CustomerRepositoryEF : ICustomerRepository
     {
         try
         {
-            return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id && x.Deleted == false).AsNoTracking().SingleOrDefault());
+            return CustomerMapper.MapToDomain(ctx.Customers.Where(x => x.CustomerUUID == id && x.Deleted == false).AsNoTracking().Single()!);
         }
         catch(Exception ex)
         {
-            throw new DataException($"Read Customer {id}", ex);
+            throw new RepositoryException($"Read Customer {id}", ex);
         }
     }
 
@@ -82,7 +85,7 @@ public class CustomerRepositoryEF : ICustomerRepository
         }
         catch(Exception ex)
         {
-            throw new DataException("Read Customer", ex);
+            throw new RepositoryException("Read Customers", ex);
 
         }
     }
@@ -96,7 +99,7 @@ public class CustomerRepositoryEF : ICustomerRepository
         }
         catch (Exception ex)
         {
-            throw new DataException("Update Customer", ex);
+            throw new RepositoryException("Update Customer", ex);
         }
     }
 }

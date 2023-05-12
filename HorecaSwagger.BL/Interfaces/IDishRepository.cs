@@ -13,5 +13,5 @@ public interface IDishRepository
     ICollection<Dish> ReadAll();
     Dish Read(int id);
     void UpdateDish(Dish dish);
-    void DeleteDish(Dish dish);
+    void DeleteDish(int id);
 }

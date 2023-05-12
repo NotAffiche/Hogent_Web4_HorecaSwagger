@@ -1,4 +1,5 @@
 ﻿using HorecaSwagger.API.DTO;
+using HorecaSwagger.API.Mappers;
 using HorecaSwagger.BL.Model;
 using HorecaSwagger.BL.Services;
 using HorecaSwagger.DLEF.Repositories;
@@ -18,13 +19,13 @@ public class CustomersController : Controller
     }
 
     [HttpGet]
-    public ActionResult<Customer> Get()
+    public ActionResult<List<CustomerDTO>> Get()
     {
         try
         {
-            List<Customer> customers = (List<Customer>)customerService.ReadAll();
-            if (customers == null) return NotFound();
-            return Ok(customers);
+            List<CustomerDTO> customerDTOs = customerService.ReadAll().Select(x=>CustomerMapper.MapToDTO(x)).ToList();
+            if (customerDTOs == null) return NotFound();
+            return Ok(customerDTOs);
         }
         catch (Exception ex)
         {
@@ -33,11 +34,11 @@ public class CustomersController : Controller
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Customer> Get(int id)
+    public ActionResult<CustomerDTO> Get(int id)
     {
         try
         {
-            Customer c = customerService.Read(id);
+            CustomerDTO c = CustomerMapper.MapToDTO(customerService.Read(id));
             if (c == null) return NotFound();
             return Ok(c);
         }
@@ -52,7 +53,37 @@ public class CustomersController : Controller
     {
         try
         {
-            customerService.Create(new Customer(dto.CustomerUUID, dto.Name, dto.FirstName, dto.Street, dto.Nr, dto.NrAddition, dto.City, dto.PostalCode, dto.Country, dto.Phone, dto.Email, dto.Password));
+            customerService.Create(CustomerMapper.MapToDomain(dto));
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500);
+        }
+    }
+
+    [HttpPut]
+    public ActionResult Put([FromBody] CustomerDTO dto)
+    {
+        try
+        {
+            customerService.Update(CustomerMapper.MapToDomain(dto));
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500);
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public ActionResult Delete(int id)
+    {
+        try
+        {
+            CustomerDTO c = CustomerMapper.MapToDTO(customerService.Read(id));
+            if (c == null) return NotFound();
+            customerService.Delete(id);
             return Ok();
         }
         catch (Exception ex)

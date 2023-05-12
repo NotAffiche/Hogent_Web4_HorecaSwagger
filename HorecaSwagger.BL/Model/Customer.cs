@@ -28,7 +28,7 @@ public class Customer
         Email = email;
         Password = password;
     }
-    public Customer(int customerUUID, string name, string firstName, string street, int nr, string nrAddition, string city, int postalCode, string country, string phone, string email, string password) : this(name, firstName,
+    public Customer(int customerUUID, string name, string firstName, string street, int nr, string? nrAddition, string city, int postalCode, string country, string phone, string email, string password) : this(name, firstName,
         street, nr, nrAddition, city, postalCode, country, phone, email, password)
     {
         CustomerUUID = customerUUID;

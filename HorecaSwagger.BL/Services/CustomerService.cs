@@ -37,8 +37,8 @@ public class CustomerService
 		repo.UpdateCustomer(c);
 	}
 
-	public void Delete(Customer c)
+	public void Delete(int id)
 	{
-		repo.DeleteCustomer(c);
+		repo.DeleteCustomer(id);
 	}
 }

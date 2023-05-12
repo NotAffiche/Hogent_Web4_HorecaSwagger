@@ -1,4 +1,6 @@
-﻿namespace HorecaSwagger.API.DTO;
+﻿using HorecaSwagger.BL.Model;
+
+namespace HorecaSwagger.API.DTO;
 
 public class CustomerDTO
 {
@@ -38,4 +40,9 @@ public class CustomerDTO
     public string Phone { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
+
+    public static explicit operator CustomerDTO(Customer v)
+    {
+        throw new NotImplementedException();
+    }
 }

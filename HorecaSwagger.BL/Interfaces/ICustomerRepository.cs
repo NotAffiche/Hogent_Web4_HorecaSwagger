@@ -13,5 +13,5 @@ public interface ICustomerRepository
     ICollection<Customer> ReadAll();
     Customer Read(int id);
     void UpdateCustomer(Customer customer);
-    void DeleteCustomer(Customer customer);
+    void DeleteCustomer(int id);
 }

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace HorecaSwagger.DLEF.Exceptions;
 
-public class DataException : Exception
+public class RepositoryException : Exception
 {
-    public DataException()
+    public RepositoryException()
     {
     }
 
-    public DataException(string? message, Exception? innerException) : base(message, innerException)
+    public RepositoryException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
 }

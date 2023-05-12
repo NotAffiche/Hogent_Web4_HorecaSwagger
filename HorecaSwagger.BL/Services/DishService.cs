@@ -37,8 +37,8 @@ public class DishService
 		repo.UpdateDish(d);
 	}
 
-	public void Delete(Dish d)
+	public void Delete(int id)
 	{
-		repo.DeleteDish(d);
+		repo.DeleteDish(id);
 	}
 }

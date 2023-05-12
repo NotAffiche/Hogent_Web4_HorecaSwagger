@@ -10,8 +10,9 @@ namespace HorecaSwagger.BL.Interfaces;
 public interface IOrderRepository
 {
     void CreateOrder(Order order);
-    ICollection<Order> ReadAll();
     Order Read(int id);
+    ICollection<Order> ReadAll();
+    ICollection<Order> ReadOrdersByCustomer(int customerId);
     void UpdateOrder(Order order);
-    void DeleteOrder(Order order);
+    void DeleteOrder(int id);
 }

@@ -1,5 +1,6 @@
 ﻿using HorecaSwagger.BL.Interfaces;
 using HorecaSwagger.BL.Model;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Mappers;
 using HorecaSwagger.DLEF.Model;
 using Microsoft.EntityFrameworkCore;
@@ -28,88 +29,151 @@ public class OrderRepositoryEF : IOrderRepository
 
     public void CreateOrder(Order order)
     {
-        var oEF = new OrderEF()
+        try
         {
-            OrderUUID = order.OrderUUID,
-            CreateDate = order.CreateDate,
-            PaymentDate = order.PaymentDate,
-            Deleted = false,
-            Customer = ctx.Customers.Find(order.Customer.CustomerUUID),
-        };
-        ctx.Orders.Add(oEF);
-        SaveAndClear();
-        foreach (var dict in order.DishesWithAmount)
-        {
-            foreach (var item in dict)
+            var oEF = new OrderEF()
             {
-                oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
-                ctx.OrderDetails.Add(new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID/*ctx.Dishes.Find(item.Key.DishUUID).DishUUID*/, DishAmount = item.Value });
+                OrderUUID = order.OrderUUID,
+                CreateDate = order.CreateDate,
+                PaymentDate = order.PaymentDate,
+                Deleted = false,
+                Customer = ctx.Customers.Find(order.Customer.CustomerUUID)!,//only existing customers (found in db) get to make orders
+            };
+            ctx.Orders.Add(oEF);
+            SaveAndClear();
+            foreach (var dict in order.DishesWithAmount)
+            {
+                foreach (var item in dict)
+                {
+                    DishEF? d = ctx.Dishes.Find(item.Key.DishUUID);
+                    if (d == null) throw new RepositoryException("Create Order - dish not found", new NullReferenceException());
+                    oEF.Dishes.Add(d);
+                    ctx.OrderDetails.Add(new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID/*ctx.Dishes.Find(item.Key.DishUUID).DishUUID*/, DishAmount = item.Value });
+                }
             }
+            SaveAndClear();
         }
-        SaveAndClear();
+        catch(Exception ex)
+        {
+            throw new RepositoryException("Create Order", ex);
+        }
     }
 
-    public void DeleteOrder(Order order)
+    public void DeleteOrder(int id)
     {
-        var oEF = ctx.Orders.Find(order.OrderUUID);
-        oEF.Deleted = true;
-        ctx.Orders.Update(oEF);
-        SaveAndClear();
+        try
+        {
+            OrderEF? oEF = ctx.Orders.Find(id);
+            if (oEF == null) throw new RepositoryException("Delete Order - order not found", new NullReferenceException());
+            oEF.Deleted = true;
+            ctx.Orders.Update(oEF);
+            SaveAndClear();
+        }
+        catch(Exception ex)
+        {
+            throw new RepositoryException("Delete Order", ex);
+        }
     }
 
     public Order Read(int id)
     {
-        OrderEF oEF = ctx.Orders.Where(x => x.Deleted == false&&x.OrderUUID==id).AsNoTracking().SingleOrDefault();
-        Order order = null;
-        List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
-        foreach (var od in ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).AsNoTracking().ToList())
+        try
         {
-            dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().SingleOrDefault()), od.DishAmount } });
+            OrderEF oEF = ctx.Orders.Where(x => x.Deleted == false && x.OrderUUID == id).AsNoTracking().SingleOrDefault();
+            Order order = null;
+            List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
+            foreach (var od in ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).AsNoTracking().ToList())
+            {
+                dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().SingleOrDefault()), od.DishAmount } });
+            }
+            var customerEF = ctx.Customers.Where(x => x.CustomerUUID == oEF.CustomerUUID).AsNoTracking().SingleOrDefault();
+            order = new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount);
+            return order;
         }
-        var customerEF = ctx.Customers.Where(x => x.CustomerUUID == oEF.CustomerUUID).AsNoTracking().SingleOrDefault();
-        order =new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount);
-        return order;
+        catch (Exception ex)
+        {
+            throw new RepositoryException($"Read Order {id}", ex);
+        }
+    }
+
+    public ICollection<Order> ReadOrdersByCustomer(int customerId)
+    {
+        try
+        {
+            List<OrderEF> ordersEFs = ctx.Orders.Where(x => x.Deleted == false && x.Customer.CustomerUUID==customerId).AsNoTracking().ToList();
+            if (ordersEFs == null || ordersEFs.Count == 0) throw new RepositoryException($"No Orders by Customer #{customerId}", new NullReferenceException());
+            List<Order> orders = new List<Order>();
+            foreach (var oEF in ordersEFs)
+            {
+                List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
+                foreach (var od in ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).AsNoTracking().ToList())
+                {
+                    dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().Single()), od.DishAmount } });
+                }
+                var customerEF = ctx.Customers.Where(x => x.CustomerUUID == oEF.CustomerUUID).AsNoTracking().Single();
+                orders.Add(new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount));
+            }
+            return orders;
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Read Orders By Customer", ex);
+        }
     }
 
     public ICollection<Order> ReadAll()
     {
-        List<OrderEF> ordersEFs = ctx.Orders.Where(x => x.Deleted == false).AsNoTracking().ToList();
-        List<Order> orders = new List<Order>();
-        foreach (var oEF in ordersEFs)
+        try
         {
-            List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
-            foreach (var od in ctx.OrderDetails.Where(x=>x.OrderUUID==oEF.OrderUUID).AsNoTracking().ToList())
+            List<OrderEF> ordersEFs = ctx.Orders.Where(x => x.Deleted == false).AsNoTracking().ToList();
+            List<Order> orders = new List<Order>();
+            foreach (var oEF in ordersEFs)
             {
-                dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().SingleOrDefault()), od.DishAmount } });
+                List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();
+                foreach (var od in ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).AsNoTracking().ToList())
+                {
+                    dishesWithAmount.Add(new Dictionary<Dish, int> { { DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == od.DishUUID).AsNoTracking().Single()), od.DishAmount } });
+                }
+                var customerEF = ctx.Customers.Where(x => x.CustomerUUID == oEF.CustomerUUID).AsNoTracking().Single();
+                orders.Add(new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount));
             }
-            var customerEF = ctx.Customers.Where(x=>x.CustomerUUID==oEF.CustomerUUID).AsNoTracking().SingleOrDefault(); 
-            orders.Add(new Order(oEF.OrderUUID, oEF.CreateDate, oEF.PaymentDate, CustomerMapper.MapToDomain(customerEF), dishesWithAmount));
+            return orders;
         }
-        return orders;
+        catch(Exception ex)
+        {
+            throw new RepositoryException("Read Orders", ex);
+        }
     }
 
     public void UpdateOrder(Order order)
     {
-        var oEF = ctx.Orders.Find(order.OrderUUID);
-
-        oEF.OrderUUID = order.OrderUUID;
-        oEF.CreateDate = order.CreateDate;
-        oEF.PaymentDate = order.PaymentDate;
-        oEF.Deleted = false;
-        oEF.Customer = ctx.Customers.Find(order.Customer.CustomerUUID);
-
-        foreach (var dict in order.DishesWithAmount)
+        try
         {
-            foreach (var item in dict)
-            {
-                oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
-                OrderDetailsEF odEF = ctx.OrderDetails.Where(x=>x.OrderUUID==oEF.OrderUUID&&x.DishUUID==item.Key.DishUUID).AsNoTracking().SingleOrDefault();
-                odEF.DishAmount = item.Value;
-                ctx.OrderDetails.Update(odEF);
-            }
-        }
+            var oEF = ctx.Orders.Find(order.OrderUUID);
 
-        ctx.Orders.Update(oEF);
-        SaveAndClear();
+            oEF.OrderUUID = order.OrderUUID;
+            oEF.CreateDate = order.CreateDate;
+            oEF.PaymentDate = order.PaymentDate;
+            oEF.Deleted = false;
+            oEF.Customer = ctx.Customers.Find(order.Customer.CustomerUUID);
+
+            foreach (var dict in order.DishesWithAmount)
+            {
+                foreach (var item in dict)
+                {
+                    oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
+                    OrderDetailsEF odEF = ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID && x.DishUUID == item.Key.DishUUID).AsNoTracking().Single();
+                    odEF.DishAmount = item.Value;
+                    ctx.OrderDetails.Update(odEF);
+                }
+            }
+
+            ctx.Orders.Update(oEF);
+            SaveAndClear();
+        }
+        catch(Exception ex)
+        {
+            throw new RepositoryException("Update Order", ex);
+        }
     }
 }

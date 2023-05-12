@@ -27,6 +27,11 @@ public class OrderService
         return repo.Read(id);
     }
 
+    public ICollection<Order> ReadOrdersByCustomer(int customerId)
+    {
+        return repo.ReadOrdersByCustomer(customerId);
+    }
+
     public ICollection<Order> ReadAll()
     {
         return repo.ReadAll();
@@ -37,8 +42,8 @@ public class OrderService
         repo.UpdateOrder(o);
     }
 
-    public void Delete(Order o)
+    public void Delete(int id)
     {
-        repo.DeleteOrder(o);
+        repo.DeleteOrder(id);
     }
 }

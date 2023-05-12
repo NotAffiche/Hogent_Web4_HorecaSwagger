@@ -1,5 +1,6 @@
 ﻿using HorecaSwagger.BL.Interfaces;
 using HorecaSwagger.BL.Model;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Mappers;
 using HorecaSwagger.DLEF.Model;
 using Microsoft.EntityFrameworkCore;
@@ -28,30 +29,76 @@ public class DishRepositoryEF : IDishRepository
 
     public void CreateDish(Dish dish)
     {
-        ctx.Dishes.Add(DishMapper.MapToDB(dish, false));
-        SaveAndClear();
+        try
+        {
+            if (ctx.Dishes.Any(x => x.Name == dish.Name && x.Description == dish.Description))
+            {
+                //re add deleted dish
+                var existingD = ctx.Dishes.Where(x => x.Name == dish.Name && x.Description == dish.Description).AsNoTracking().Single();
+                existingD!.Deleted = false;
+                ctx.Dishes.Update(existingD);
+            }
+            else
+            {
+                //add new dish
+                ctx.Dishes.Add(DishMapper.MapToDB(dish, false));
+            }
+            SaveAndClear();
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Create Dish", ex);
+        }
     }
 
-    public void DeleteDish(Dish dish)
+    public void DeleteDish(int id)
     {
-        ctx.Dishes.Update(DishMapper.MapToDB(dish, true));
-        SaveAndClear();
+        try
+        {
+            ctx.Dishes.Update(DishMapper.MapToDB(Read(id), true));
+            SaveAndClear();
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Delete Dish", ex);
+        }
     }
 
     public Dish Read(int id)
     {
-        return DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == id && x.Deleted == false).AsNoTracking().SingleOrDefault());
+        try
+        {
+            return DishMapper.MapToDomain(ctx.Dishes.Where(x => x.DishUUID == id && x.Deleted == false).AsNoTracking().Single()!);
+        }
+        catch(Exception ex)
+        {
+            throw new RepositoryException($"Create Dish {id}", ex);
+        }
     }
 
     public ICollection<Dish> ReadAll()
     {
-        List<DishEF> dishesEFs = ctx.Dishes.Where(x => x.Deleted == false).AsNoTracking().ToList();
-        return dishesEFs.Select(x => DishMapper.MapToDomain(x)).ToList();
+        try
+        {
+            List<DishEF> dishesEFs = ctx.Dishes.Where(x => x.Deleted == false).AsNoTracking().ToList();
+            return dishesEFs.Select(x => DishMapper.MapToDomain(x)).ToList();
+        }
+        catch(Exception ex)
+        {
+            throw new RepositoryException("Read Dishes", ex);
+        }
     }
 
     public void UpdateDish(Dish dish)
     {
-        ctx.Dishes.Update(DishMapper.MapToDB(dish, false));
-        SaveAndClear();
+        try
+        {
+            ctx.Dishes.Update(DishMapper.MapToDB(dish, false));
+            SaveAndClear();
+        }
+        catch (Exception ex)
+        {
+            throw new RepositoryException("Update Dish", ex);
+        }
     }
 }
