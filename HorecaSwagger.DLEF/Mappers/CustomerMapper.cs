@@ -15,7 +15,7 @@ public static class CustomerMapper
     {
         try
         {
-            return new Customer(db.CustomerUUID, db.Name, db.FirstName, db.Street, db.Nr, db.NrAddition, db.City, db.PostalCode, db.Country, db.Phone, db.Email, db.Password);
+            return new Customer(db.CustomerUUID, db.Name, db.FirstName, db.Street, db.Nr, db.NrAddition, db.City, db.PostalCode, db.Country, db.Phone, db.Email, db.Password) { PasswordSalt=db.PasswordSalt };
         }
         catch (Exception ex)
         {
@@ -41,7 +41,8 @@ public static class CustomerMapper
                 Phone = dom.Phone,
                 Email = dom.Email,
                 Password = dom.Password,
-                Deleted = deleted
+                Deleted = deleted,
+                PasswordSalt=dom.PasswordSalt
             };
         }
         catch (Exception ex)

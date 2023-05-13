@@ -1,5 +1,6 @@
 ﻿using HorecaSwagger.BL.Interfaces;
 using HorecaSwagger.BL.Model;
+using HorecaSwagger.BL.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace HorecaSwagger.BL.Services;
 public class CustomerService
 {
     private ICustomerRepository repo;
+	private const int _ITER = 3;
 
 	public CustomerService(ICustomerRepository repo)
 	{
@@ -19,6 +21,8 @@ public class CustomerService
 
 	public void Create(Customer c)
 	{
+		c.PasswordSalt = PasswordHasher.GenerateSalt();
+		c.Password = PasswordHasher.ComputeHash(c.Password, c.PasswordSalt, _ITER);
 		repo.CreateCustomer(c);
 	}
 
@@ -34,6 +38,7 @@ public class CustomerService
 
 	public void Update(Customer c)
 	{
+		c.Password = PasswordHasher.ComputeHash(c.Password, c.PasswordSalt, _ITER);
 		repo.UpdateCustomer(c);
 	}
 

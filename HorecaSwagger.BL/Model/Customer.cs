@@ -147,4 +147,5 @@ public class Customer
             _password = value;
         }
     }
+    public string PasswordSalt { get; set; }
 }

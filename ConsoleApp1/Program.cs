@@ -14,12 +14,12 @@ namespace ConsoleApp1
             //=================================----------------=================================//
             string conn = "Server=mysql.affiche.me;Database=web4db_ADBI;Uid=Web4U-ADBI;Pwd=web4P455w0rd!;";
             //=================================----------------=================================//
-            /*
+            
             //Gen db
             DataContext ctx = new DataContext(conn);
             ctx.Database.EnsureDeleted();
             ctx.Database.EnsureCreated();
-            */
+            
             Console.WriteLine("====================================================");
             Console.WriteLine("====================================================");
             Console.WriteLine("====================================================");
@@ -53,10 +53,10 @@ namespace ConsoleApp1
             //Order o = new Order(2, os.Read(2).CreateDate, DateTime.Now, cs.Read(1), dishesWithAmount);
             //os.Update(o);
             //delete order
-            List < Dictionary<Dish, int> > dishesWithAmount = new List<Dictionary<Dish, int>>();
-            dishesWithAmount.Add(new Dictionary<Dish, int> { { ds.Read(3), 4 } });//4 pizza
-            Order o = new Order(2, os.Read(2).CreateDate, DateTime.Now, cs.Read(1), dishesWithAmount);
-            os.Delete(o);
+            //List < Dictionary<Dish, int> > dishesWithAmount = new List<Dictionary<Dish, int>>();
+            //dishesWithAmount.Add(new Dictionary<Dish, int> { { ds.Read(3), 4 } });//4 pizza
+            //Order o = new Order(2, os.Read(2).CreateDate, DateTime.Now, cs.Read(1), dishesWithAmount);
+            //os.Delete(o);
 
 
             foreach (var item in cs.ReadAll())

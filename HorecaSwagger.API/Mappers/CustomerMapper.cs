@@ -22,7 +22,7 @@ public static class CustomerMapper
     {
         try
         {
-            return new CustomerDTO(dom.CustomerUUID, dom.Name, dom.FirstName, dom.Street, dom.Nr, dom.NrAddition, dom.City, dom.PostalCode, dom.Country, dom.Phone, dom.Email, dom.Password);
+            return new CustomerDTO(dom.CustomerUUID, dom.Name, dom.FirstName, dom.Street, dom.Nr, dom.NrAddition, dom.City, dom.PostalCode, dom.Country, dom.Phone, dom.Email, dom.Password + " " + dom.PasswordSalt);
         }
         catch(Exception ex)
         {

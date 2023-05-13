@@ -94,6 +94,8 @@ public class CustomerRepositoryEF : ICustomerRepository
     {
         try
         {
+            CustomerEF customerEF = ctx.Customers.Where(x=>x.CustomerUUID==customer.CustomerUUID).AsNoTracking().SingleOrDefault()!;
+            customer.PasswordSalt= customerEF.PasswordSalt;
             ctx.Customers.Update(CustomerMapper.MapToDB(customer, false));
             SaveAndClear();
         }

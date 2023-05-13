@@ -25,7 +25,7 @@ public class CustomerEF
     public string Phone { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
-    [Required]
+    public string PasswordSalt { get; set; }
     [Column(TypeName = "bit")]
     public bool Deleted { get; set; }
     //
