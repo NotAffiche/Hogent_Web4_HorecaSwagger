@@ -144,34 +144,51 @@ public class OrderRepositoryEF : IOrderRepository
             throw new RepositoryException("Read Orders", ex);
         }
     }
-
     public void UpdateOrder(Order order)
     {
         try
         {
-            var oEF = ctx.Orders.Find(order.OrderUUID);
+            var oEF = ctx.Orders.Find(order.OrderUUID)!;
 
             oEF.OrderUUID = order.OrderUUID;
             oEF.CreateDate = order.CreateDate;
             oEF.PaymentDate = order.PaymentDate;
             oEF.Deleted = false;
-            oEF.Customer = ctx.Customers.Find(order.Customer.CustomerUUID);
+            oEF.Customer = ctx.Customers.Find(order.Customer.CustomerUUID)!;
+
+            var orderDetailsEFsfromDB = ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID).ToList();
 
             foreach (var dict in order.DishesWithAmount)
             {
                 foreach (var item in dict)
                 {
-                    oEF.Dishes.Add(ctx.Dishes.Find(item.Key.DishUUID));
-                    OrderDetailsEF odEF = ctx.OrderDetails.Where(x => x.OrderUUID == oEF.OrderUUID && x.DishUUID == item.Key.DishUUID).AsNoTracking().Single();
-                    odEF.DishAmount = item.Value;
-                    ctx.OrderDetails.Update(odEF);
+                    // check if the dish already has an od in the database
+                    var existingOrderDetail = orderDetailsEFsfromDB.FirstOrDefault(x => x.DishUUID == item.Key.DishUUID);
+
+                    if (existingOrderDetail != null)
+                    {
+                        // update existing od
+                        existingOrderDetail.DishAmount = item.Value;
+                        ctx.OrderDetails.Update(existingOrderDetail);
+                        orderDetailsEFsfromDB.Remove(existingOrderDetail);
+                    }
+                    else
+                    {
+                        // add new od
+                        var nodEF = new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID, DishAmount = item.Value };
+                        ctx.OrderDetails.Add(nodEF);
+                    }
                 }
             }
+
+            // remove existing ods (present in db, not in order)
+            ctx.OrderDetails.RemoveRange(orderDetailsEFsfromDB);
+            SaveAndClear();
 
             ctx.Orders.Update(oEF);
             SaveAndClear();
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             throw new RepositoryException("Update Order", ex);
         }

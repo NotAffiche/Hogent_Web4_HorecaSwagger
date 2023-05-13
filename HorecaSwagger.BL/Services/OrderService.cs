@@ -10,40 +10,56 @@ namespace HorecaSwagger.BL.Services;
 
 public class OrderService
 {
-    private IOrderRepository repo;
+    private IOrderRepository oRepo;
 
-    public OrderService(IOrderRepository repo)
+    public OrderService(IOrderRepository orepo)
     {
-        this.repo = repo;
+        oRepo = orepo;
     }
 
-    public void Create(Order o)
+    public void Create(Order o, DishService ds)
     {
-        repo.CreateOrder(o);
+        oRepo.CreateOrder(o);
+        if (o.PaymentDate!=null) SubtractAmountAvailableDishes(o, ds);
     }
 
     public Order Read(int id)
     {
-        return repo.Read(id);
+        return oRepo.Read(id);
     }
 
     public ICollection<Order> ReadOrdersByCustomer(int customerId)
     {
-        return repo.ReadOrdersByCustomer(customerId);
+        return oRepo.ReadOrdersByCustomer(customerId);
     }
 
     public ICollection<Order> ReadAll()
     {
-        return repo.ReadAll();
+        return oRepo.ReadAll();
     }
 
-    public void Update(Order o)
+    public void Update(Order o, DishService ds)
     {
-        repo.UpdateOrder(o);
+        oRepo.UpdateOrder(o);
+        if (o.PaymentDate != null) SubtractAmountAvailableDishes(o, ds);
     }
 
     public void Delete(int id)
     {
-        repo.DeleteOrder(id);
+        oRepo.DeleteOrder(id);
+    }
+
+    private void SubtractAmountAvailableDishes(Order o, DishService ds)
+    {
+        foreach (var dishWithAmount in o.DishesWithAmount)
+        {
+            foreach (var dwa in dishWithAmount)
+            {
+                Dish d = dwa.Key;
+                int amount = dwa.Value;
+                d.AmountAvailable -= amount;
+                ds.Update(d);
+            }
+        }
     }
 }

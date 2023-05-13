@@ -19,9 +19,10 @@ public class OrdersController : Controller
 
     public OrdersController(IConfiguration config)
     {
-        orderService = new OrderService(new OrderRepositoryEF(config.GetValue<string>("ConnectionStrings:MySqlConn")!));
-        customerService = new CustomerService(new CustomerRepositoryEF(config.GetValue<string>("ConnectionStrings:MySqlConn")!));
-        dishService = new DishService(new DishRepositoryEF(config.GetValue<string>("ConnectionStrings:MySqlConn")!));
+        string conn = config.GetValue<string>("ConnectionStrings:MySqlConn")!;
+        orderService = new OrderService(new OrderRepositoryEF(conn));
+        customerService = new CustomerService(new CustomerRepositoryEF(conn));
+        dishService = new DishService(new DishRepositoryEF(conn));
     }
 
     [HttpGet]
@@ -75,7 +76,7 @@ public class OrdersController : Controller
     {
         try
         {
-            orderService.Create(OrderMapper.MapToDomain(dto, customerService, dishService));
+            orderService.Create(OrderMapper.MapToDomain(dto, customerService, dishService), dishService);
             return Ok();
         }
         catch (APIException ex)
@@ -97,7 +98,7 @@ public class OrdersController : Controller
     {
         try
         {
-            orderService.Update(OrderMapper.MapToDomain(dto, customerService, dishService));
+            orderService.Update(OrderMapper.MapToDomain(dto, customerService, dishService), dishService);
             return Ok();
         }
         catch (APIException ex)

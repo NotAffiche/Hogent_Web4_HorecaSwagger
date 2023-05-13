@@ -51,7 +51,7 @@ public class Order
         get { return _paymentDate; }
         set
         {
-            if (value!=null && DateTime.Compare((DateTime)value, CreateDate)<=0) throw new DomainException("Invalid PaymentDate", new ArgumentException());
+            if (value!=null && DateTime.Compare((DateTime)value, CreateDate) < 0) throw new DomainException("Invalid PaymentDate", new ArgumentException());
             _paymentDate = value;
         }
     }
