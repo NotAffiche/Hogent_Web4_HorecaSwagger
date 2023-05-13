@@ -1,7 +1,10 @@
 ﻿using HorecaSwagger.API.DTO;
+using HorecaSwagger.API.Exceptions;
 using HorecaSwagger.API.Mappers;
+using HorecaSwagger.BL.Exceptions;
 using HorecaSwagger.BL.Model;
 using HorecaSwagger.BL.Services;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,9 +30,17 @@ public class DishesController : Controller
             if (dishes == null) return NotFound();
             return Ok(dishes);
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -42,9 +53,17 @@ public class DishesController : Controller
             if (d == null) return NotFound();
             return Ok(d);
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -72,9 +91,17 @@ public class DishesController : Controller
             dishService.Update(DishMapper.MapToDomain(dto));
             return Ok();
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -89,9 +116,17 @@ public class DishesController : Controller
             dishService.Delete(id);
             return Ok();
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using HorecaSwagger.API.DTO;
+using HorecaSwagger.API.Exceptions;
 using HorecaSwagger.API.Mappers;
+using HorecaSwagger.BL.Exceptions;
 using HorecaSwagger.BL.Services;
+using HorecaSwagger.DLEF.Exceptions;
 using HorecaSwagger.DLEF.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,9 +33,17 @@ public class OrdersController : Controller
             if (orders == null) return NotFound();
             return Ok(orders);
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -45,9 +56,17 @@ public class OrdersController : Controller
             if (orders == null) return NotFound();
             return Ok(orders);
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -59,9 +78,17 @@ public class OrdersController : Controller
             orderService.Create(OrderMapper.MapToDomain(dto, customerService, dishService));
             return Ok();
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -73,9 +100,17 @@ public class OrdersController : Controller
             orderService.Update(OrderMapper.MapToDomain(dto, customerService, dishService));
             return Ok();
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 
@@ -89,9 +124,17 @@ public class OrdersController : Controller
             orderService.Delete(id);
             return Ok();
         }
-        catch (Exception ex)
+        catch (APIException ex)
         {
-            return StatusCode(500);
+            return StatusCode(400, ex.Message);
+        }
+        catch (DomainException ex)
+        {
+            return StatusCode(422, ex.Message);
+        }
+        catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 }
