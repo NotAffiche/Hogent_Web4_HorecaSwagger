@@ -29,12 +29,12 @@ namespace ConsoleApp1
             OrderService os = new OrderService(new OrderRepositoryEF(conn));
 
             ////create data
-            //cs.Create(new Customer("Biedny", "Adrian", "Damstraat", 86, "B", "Sint-Niklaas", 9100, "BE", "0487/000.000", "adbi@gmail.com", "test-pass"));
+            cs.Create(new Customer("Biedny", "Adrian", "Damstraat", 86, "B", "Sint-Niklaas", 9100, "BE", "0487/000.000", "adrian.biedny@gmail.com", "koekje"));
             //cs.Create(new Customer("Biedny", "Jeremi", "Plezantstraat", 120, null, "Sint-Niklaas", 9100, "BE", "0000/000.000", "jer.bie@gmail.com", "daknam123"));
-            //cs.Create(new Customer("Name", "FirstName", "Street", 1, null, "City", 9999, "Country", "0000/000.000", "e@mail.com", "password"));
-            //ds.Create(new Dish("Beef Burger", "Finest Irish Angus Beef Burger", 7.5, 87));
-            //ds.Create(new Dish("Chicken Burger", "The Greatest Poultry From All The Lands On A Delicious Bun", 5.5, 69));
-            //ds.Create(new Dish("Margherita Pizza", "The Base For All Pizza's", 12, 64));
+            cs.Create(new Customer("Name", "FirstName", "Street", 1, null, "City", 9999, "Country", "0000/000.000", "e@mail.com", "password"));
+            ds.Create(new Dish("Beef Burger", "Finest Irish Angus Beef Burger", 7.5, 87));
+            ds.Create(new Dish("Chicken Burger", "The Greatest Poultry From All The Lands On A Delicious Bun", 5.5, 69));
+            ds.Create(new Dish("Margherita Pizza", "The Base For All Pizza's", 12, 64));
 
             ////create order
             //List<Dictionary<Dish, int>> dishesWithAmount = new List<Dictionary<Dish, int>>();

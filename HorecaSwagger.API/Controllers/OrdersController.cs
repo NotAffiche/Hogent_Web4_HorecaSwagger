@@ -89,7 +89,11 @@ public class OrdersController : Controller
         }
         catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
         {
-            return StatusCode(500, ex.Message);
+            if (ex.InnerException != null && ex.InnerException.Message.Contains("order too high (not enough available)"))
+            {
+                return StatusCode(409, ex.InnerException?.Message);
+            }
+            return StatusCode(500, ex.Message + ex.InnerException?.Message);
         }
     }
 
@@ -111,7 +115,11 @@ public class OrdersController : Controller
         }
         catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
         {
-            return StatusCode(500, ex.Message);
+            if (ex.InnerException != null && ex.InnerException.Message.Contains("order too high (not enough available)"))
+            {
+                return StatusCode(409, ex.InnerException?.Message);
+            }
+            return StatusCode(500, ex.Message + ex.InnerException?.Message);
         }
     }
 

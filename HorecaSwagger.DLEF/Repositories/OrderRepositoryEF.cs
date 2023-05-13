@@ -39,18 +39,22 @@ public class OrderRepositoryEF : IOrderRepository
                 Deleted = false,
                 Customer = ctx.Customers.Find(order.Customer.CustomerUUID)!,//only existing customers (found in db) get to make orders
             };
-            ctx.Orders.Add(oEF);
-            SaveAndClear();
+            List<OrderDetailsEF> odEFsToBeAdded = new();
             foreach (var dict in order.DishesWithAmount)
             {
                 foreach (var item in dict)
                 {
                     DishEF? d = ctx.Dishes.Find(item.Key.DishUUID);
                     if (d == null) throw new RepositoryException("Create Order - dish not found", new NullReferenceException());
-                    oEF.Dishes.Add(d);
-                    ctx.OrderDetails.Add(new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID/*ctx.Dishes.Find(item.Key.DishUUID).DishUUID*/, DishAmount = item.Value });
+                    if (d.AmountAvailable < item.Value) throw new RepositoryException($"Create Order - order too high (not enough available) [In Order: {item.Value} - AmountAvailable: {d.AmountAvailable}]", new ArgumentException());
+                    //oEF.Dishes.Add(d);
+                    odEFsToBeAdded.Add(new OrderDetailsEF() { OrderUUID = oEF.OrderUUID, DishUUID = item.Key.DishUUID/*ctx.Dishes.Find(item.Key.DishUUID).DishUUID*/, DishAmount = item.Value });
                 }
             }
+            ctx.Orders.Add(oEF);
+            SaveAndClear();
+            odEFsToBeAdded.ForEach(x=>x.OrderUUID= oEF.OrderUUID);
+            ctx.OrderDetails.AddRange(odEFsToBeAdded);
             SaveAndClear();
         }
         catch(Exception ex)
@@ -165,6 +169,9 @@ public class OrderRepositoryEF : IOrderRepository
                     // check if the dish already has an od in the database
                     var existingOrderDetail = orderDetailsEFsfromDB.FirstOrDefault(x => x.DishUUID == item.Key.DishUUID);
 
+                    //
+                    DishEF? d = ctx.Dishes.Find(item.Key.DishUUID);
+                    if (d.AmountAvailable < item.Value) throw new RepositoryException($"Create Order - order too high (not enough available) [In Order: {item.Value} - AmountAvailable: {d.AmountAvailable}]", new ArgumentException());
                     if (existingOrderDetail != null)
                     {
                         // update existing od
@@ -185,6 +192,7 @@ public class OrderRepositoryEF : IOrderRepository
             ctx.OrderDetails.RemoveRange(orderDetailsEFsfromDB);
             SaveAndClear();
 
+            oEF.Dishes = null;
             ctx.Orders.Update(oEF);
             SaveAndClear();
         }
