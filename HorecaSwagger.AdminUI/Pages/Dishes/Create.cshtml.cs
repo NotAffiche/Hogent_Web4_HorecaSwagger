@@ -7,49 +7,18 @@ using System.Text;
 
 namespace HorecaSwagger.AdminUI.Pages.Dishes;
 
-public class EditModel : PageModel
+public class CreateModel : PageModel
 {
     private readonly string URL = "http://localhost:5135/api/Dishes";
     public DishDTO Dish { get; set; }
 
-    public IActionResult OnGet(int id)
-    {
-        OnCallApiGet(id);
-        return Page();
-    }
-
     public IActionResult OnPost(int id, DishDTO dish)
     {
-        OnCallApiEdit(id, dish);
+        OnCallApiPost(id, dish);
         return RedirectToPage("./Index");
     }
 
-    public void OnCallApiGet(int id)
-    {
-        try
-        {
-            var client = new HttpClient(new HttpClientHandler() { ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator });
-            using (client)
-            {
-                HttpRequestMessage request = new HttpRequestMessage();
-                request.RequestUri = new Uri(URL + "/" + id);
-                request.Method = HttpMethod.Get;
-                HttpResponseMessage response = client.Send(request);
-                var statusCode = response.StatusCode;
-                if (response.IsSuccessStatusCode)
-                {
-                    string jsonContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                    Dish = JsonConvert.DeserializeObject<DishDTO>(jsonContent)!;
-                }
-            }
-        }
-        catch
-        {
-            RedirectToPage("./Error");
-        }
-    }
-
-    public void OnCallApiEdit(int id, DishDTO dish)
+    public void OnCallApiPost(int id, DishDTO dish)
     {
         try
         {
@@ -58,7 +27,7 @@ public class EditModel : PageModel
             {
                 HttpRequestMessage request = new HttpRequestMessage();
                 request.RequestUri = new Uri($"{URL}");
-                request.Method = HttpMethod.Put;
+                request.Method = HttpMethod.Post;
 
 
                 var jsonPayload = JsonConvert.SerializeObject(dish);
@@ -76,7 +45,7 @@ public class EditModel : PageModel
                 var statusCode = response.StatusCode;
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Successfully edited!");
+                    Console.WriteLine("Successfully created!");
                 }
             }
         }

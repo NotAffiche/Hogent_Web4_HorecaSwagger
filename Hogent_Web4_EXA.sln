@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleTestApps", "ConsoleT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{8221FCEC-669D-4155-B9BD-20EB4DB70EE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HorecaSwagger.AdminUI", "HorecaSwagger.AdminUI\HorecaSwagger.AdminUI.csproj", "{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HorecaSwagger.AdminUI", "HorecaSwagger.AdminUI\HorecaSwagger.AdminUI.csproj", "{0D6B4400-66C6-43FE-BBEA-EE5FEFC9DC37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

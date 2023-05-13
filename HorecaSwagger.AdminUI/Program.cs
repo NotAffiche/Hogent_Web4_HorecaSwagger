@@ -15,12 +15,13 @@ namespace HorecaSwagger.AdminUI
             var app = builder.Build();
 
             //culture (set [DataType(DataType.Currency)] to eur)
-            var cultureInfo = new CultureInfo("nl-BE");
+            var cultureInfo = new CultureInfo("en-US");//var cultureInfo = new CultureInfo("nl-BE");//creates problems => cultureInfo.NumberFormat.CurrencyDecimalSeperator = "."; does not fix read . as decimal seperator
+            cultureInfo.NumberFormat.CurrencySymbol = "€";
             app.UseRequestLocalization(new RequestLocalizationOptions
             {
                 DefaultRequestCulture = new RequestCulture(cultureInfo),
                 SupportedCultures = new[] { cultureInfo },
-                SupportedUICultures = new[] { cultureInfo }
+                SupportedUICultures = new[] { cultureInfo },
             });
 
             // Configure the HTTP request pipeline.

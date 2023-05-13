@@ -4,51 +4,50 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Newtonsoft.Json;
 using NuGet.Protocol;
 
-namespace HorecaSwagger.AdminUI.Pages.Dishes
+namespace HorecaSwagger.AdminUI.Pages.Dishes;
+
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly string URL = "http://localhost:5135/api/Dishes";
+    public IList<DishDTO> Dishes { get; set; }
+
+    public IndexModel()
     {
-        private readonly string URL = "http://localhost:5135/api/Dishes";
-        public IList<DishDTO> Dishes { get; set; }
+        Dishes = new List<DishDTO>();
+        OnCallAPI();
+    }
 
-        public IndexModel()
+    public void OnCallAPI()
+    {
+        try
         {
-            Dishes = new List<DishDTO>();
-            OnCallAPI();
-        }
-
-        public void OnCallAPI()
-        {
-            try
+            var httpClientHandler = new HttpClientHandler()
             {
-                var httpClientHandler = new HttpClientHandler()
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+            var client = new HttpClient(httpClientHandler);
+            using (client)
+            {
+                HttpRequestMessage request = new HttpRequestMessage();
+                request.RequestUri = new Uri(URL);
+                request.Method = HttpMethod.Get;
+                HttpResponseMessage response = client.Send(request);
+                var statusCode = response.StatusCode;
+                if (response.IsSuccessStatusCode)
                 {
-                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                };
-                var client = new HttpClient(httpClientHandler);
-                using (client)
+                    string jsonContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    Console.WriteLine(jsonContent);
+                    Dishes = JsonConvert.DeserializeObject<List<DishDTO>>(jsonContent)!;
+                }
+                else
                 {
-                    HttpRequestMessage request = new HttpRequestMessage();
-                    request.RequestUri = new Uri(URL);
-                    request.Method = HttpMethod.Get;
-                    HttpResponseMessage response = client.Send(request);
-                    var statusCode = response.StatusCode;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string jsonContent = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                        Console.WriteLine(jsonContent);
-                        Dishes = JsonConvert.DeserializeObject<List<DishDTO>>(jsonContent)!;
-                    }
-                    else
-                    {
-                        throw new Exception(response.StatusCode.ToString());
-                    }
+                    throw new Exception(response.StatusCode.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                RedirectToPage("./Error");
-            }
+        }
+        catch (Exception ex)
+        {
+            RedirectToPage("./Error");
         }
     }
 }
