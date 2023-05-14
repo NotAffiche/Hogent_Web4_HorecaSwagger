@@ -85,7 +85,7 @@ public class CustomersController : Controller
         }
         catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, ex.Message + " " + ex.InnerException?.Message);
         }
     }
 
@@ -107,7 +107,7 @@ public class CustomersController : Controller
         }
         catch (Exception ex) when (ex is MapperException || ex is RepositoryException)
         {
-            return StatusCode(500, ex.Message);
+            return StatusCode(500, ex.Message + " " + ex.InnerException?.Message);
         }
     }
 

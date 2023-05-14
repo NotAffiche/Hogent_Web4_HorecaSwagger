@@ -93,7 +93,7 @@ public class OrdersController : Controller
             {
                 return StatusCode(409, ex.InnerException?.Message);
             }
-            return StatusCode(500, ex.Message + ex.InnerException?.Message);
+            return StatusCode(500, ex.Message + " " + ex.InnerException?.Message);
         }
     }
 
@@ -119,7 +119,7 @@ public class OrdersController : Controller
             {
                 return StatusCode(409, ex.InnerException?.Message);
             }
-            return StatusCode(500, ex.Message + ex.InnerException?.Message);
+            return StatusCode(500, ex.Message + " " + ex.InnerException?.Message);
         }
     }
 
